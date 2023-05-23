@@ -1,17 +1,18 @@
 package main
 
 import (
-	"time"
-	"math/rand"
-	"sync"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"math"
+	"math/rand"
+	"strconv"
+	"sync"
+	"time"
+	"unsafe"
+
 	"github.com/gogf/gf/util/gconv"
 	"github.com/mitchellh/mapstructure"
 	"github.com/shopspring/decimal"
-	"strconv"
-	"unsafe"
-	"math"
 )
 
 func NewTest() chan int {
@@ -36,7 +37,7 @@ func main() {
 	//Test()
 	//MapToStruct()
 	//TimeCompare()
-	JsonTest()
+	// JsonTest()
 	//MapTest()
 	//n := 10
 	//for i := 0; i < 5; i++ {
@@ -49,7 +50,8 @@ func main() {
 	//excel.ExcelHandle.Do()
 	//MyArr()
 	//PrintFloat()
-	fmt.Printf("%.6f", float64(time.Now().Unix())/1e10)
+	// fmt.Printf("%.6f", float64(time.Now().Unix())/1e10)
+	exercise.Flag
 }
 
 func generate(n int) []int {
@@ -192,7 +194,7 @@ type demo2 struct {
 	b int16
 }
 
-//属性名称顺序对内存的影响
+// 属性名称顺序对内存的影响
 func MemOpt() {
 	var str int
 	fmt.Println(unsafe.Alignof(demo1{}))
