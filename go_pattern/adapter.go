@@ -6,15 +6,15 @@ type V5 interface {
 	Use5V()
 }
 
-type Phone struct {
+type ApplePhone struct {
 	v V5
 }
 
-func NewPhone(v V5) *Phone {
-	return &Phone{v}
+func NewPhone(v V5) *ApplePhone {
+	return &ApplePhone{v}
 }
 
-func (p *Phone) Charge() {
+func (p *ApplePhone) Charge() {
 	fmt.Println("Phone进行充电...")
 	p.v.Use5V()
 }
