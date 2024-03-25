@@ -3,8 +3,8 @@ package exercise
 func SelectionSort(num []int) {
 	for i, _ := range num {
 		k := i
-		for j := i + 1; i < len(num); i++ {
-			if num[i] > num[j] {
+		for j := i + 1; j < len(num); j++ {
+			if num[k] > num[j] {
 				k = j
 			}
 		}
