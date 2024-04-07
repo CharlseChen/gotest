@@ -2,13 +2,16 @@ package exercise
 
 func partition(nums []int, left, right int) int {
 	i, j := left, right
-	for i < j && nums[j] >= nums[left] {
-		j--
+	for i < j {
+		for i < j && nums[j] >= nums[left] {
+			j--
+		}
+		for i < j && nums[i] <= nums[left] {
+			i++
+		}
+		nums[i], nums[j] = nums[j], nums[i]
 	}
-	for i < j && nums[i] <= nums[right] {
-		i++
-	}
-	nums[i], nums[j] = nums[j], nums[i]
+	nums[i], nums[left] = nums[left], nums[i]
 	return i
 }
 
