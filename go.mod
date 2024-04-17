@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/gizak/termui/v3 v3.1.0
-	github.com/gogf/gf v1.15.4
+	github.com/gogf/gf v1.16.9
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/panjf2000/ants/v2 v2.7.1
 	github.com/shopspring/decimal v1.3.1
