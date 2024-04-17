@@ -7,18 +7,18 @@ import (
 
 func Benchmark_ActCarnivalGift(b *testing.B) {
 	var hasBuffDouble bool
-	hasBuffDouble = true
+	hasBuffDouble = false
 	awardNum := 0
-	//gid := 11017286
-	//awardCid := 6284
+	gid := 11017286
+	awardCid := 6284
 	//检测是否前30次没有获得戒指，如果没有获得，此次必中
 
-	gid := 11017284
-	awardCid := 6283
-	var ringCount uint32 = 0
+	//gid := 11017284
+	//awardCid := 6283
+	var ringCount uint32 = 1
 
 	for j := 0; j < b.N; j++ {
-		var count uint32 = 5
+		var count uint32 = 38
 		//前五次的返利概率
 		var weight, totalWeight uint32
 		//便宜戒指
@@ -37,10 +37,10 @@ func Benchmark_ActCarnivalGift(b *testing.B) {
 					weight = 30
 					totalWeight = 230
 				}
-				if count >= 30 && ringCount == 0 && awardNum == 0 {
-					weight = 100
-					totalWeight = 100
-				}
+				//if count >= 30 && ringCount == 0 && awardNum == 0 {
+				//	weight = 100
+				//	totalWeight = 100
+				//}
 			}
 			//贵戒指
 		} else if gid == 11017286 {
