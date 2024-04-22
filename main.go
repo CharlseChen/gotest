@@ -51,7 +51,6 @@ func main() {
 	//MyArr()
 	//PrintFloat()
 	// fmt.Printf("%.6f", float64(time.Now().Unix())/1e10)
-	exercise.Flag
 }
 
 func generate(n int) []int {

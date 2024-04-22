@@ -1,6 +1,8 @@
 package exercise
 
-import "testing"
+import (
+	"testing"
+)
 
 func Test_insertion(t *testing.T) {
 	var num = []int{19, 23, 9, 34, 42, 52, 1, 50}
@@ -18,4 +20,9 @@ func Test_insertion(t *testing.T) {
 	copy(num3, num)
 	SelectionSort(num3)
 	t.Logf("num3:%v", num3)
+
+	num4 := make([]int, 10)
+	copy(num4, num)
+	num4 = MergeSort(num4)
+	t.Logf("num4:%v", num4)
 }
