@@ -1,4 +1,4 @@
-package carnival
+package main
 
 import (
 	"testing"
