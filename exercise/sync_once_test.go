@@ -8,10 +8,15 @@ import (
 )
 
 func BenchmarkSyncOnce(b *testing.B) {
-	var once sync.Once
+
 	a := 1
-	once.Do(func() {
-		a++
+	b.RunParallel(func(pb *testing.PB) {
+		var once sync.Once
+		for pb.Next() {
+			once.Do(func() {
+				a++
+			})
+		}
 	})
 	fmt.Println(a)
 }
@@ -19,9 +24,16 @@ func BenchmarkSyncOnce(b *testing.B) {
 func BenchmarkSingleFlight(b *testing.B) {
 	var group singleflight.Group
 	a := 1
-	c, _, shared := group.Do("a", func() (interface{}, error) {
-		a++
-		return a, nil
+	c := 1
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			d, _, _ := group.Do("a", func() (interface{}, error) {
+				a++
+				return a, nil
+			})
+			c++
+			fmt.Println(d, c)
+		}
 	})
-	fmt.Println(c, shared)
+
 }
