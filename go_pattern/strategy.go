@@ -31,8 +31,10 @@ func (t *Me) Fight() {
 	t.tableware.UseTableware()
 }
 
+//go:generate go run strategy.go
 func main() {
-	me := new(Me)
-	me.SetTableware(new(chopstick))
+	me := &Me{
+		tableware: Tableware(&chopstick{}),
+	}
 	me.Fight()
 }
