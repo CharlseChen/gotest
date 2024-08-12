@@ -1,0 +1,11 @@
+[database]
+	#读写分离主库
+    [[database.default]]
+        type = "mysql"
+        link = "root:123456@tcp(localhost:3306)/xianshi"
+        charset = "utf8mb4"
+        debug = true
+        maxIdle = 1
+        maxOpen = 100
+        maxLifetime = 30
+        role = "master"
