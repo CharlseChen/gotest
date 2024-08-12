@@ -7,11 +7,11 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gogf/gf v1.16.9
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/panjf2000/ants/v2 v2.7.1
+	github.com/panjf2000/ants/v2 v2.10.0
 	github.com/shopspring/decimal v1.3.1
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0
-	golang.org/x/sync v0.1.0
+	golang.org/x/sync v0.8.0
 )
 
 require (
