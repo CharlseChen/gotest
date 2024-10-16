@@ -14,3 +14,4 @@ COPY --from=builder /app/my-go-app .
 EXPOSE 8080
 
 CMD ["./my-go-app"]
+ENTRYPOINT ["/bin/bash","-c","echo hello"]
