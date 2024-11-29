@@ -2,7 +2,6 @@ package goroutine_pool
 
 import (
 	"fmt"
-	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -18,37 +17,38 @@ type Pool struct {
 	tasks       chan *Task
 	quit        chan bool
 	workerQueue chan *worker
-	wg          sync.WaitGroup
 }
 
 type worker struct {
 	pool *Pool
 	task chan *Task
+	id   uint32
 }
 
 func NewPool(capacity int) *Pool {
 	return &Pool{
 		capacity:    capacity,
-		tasks:       make(chan *Task),
+		tasks:       make(chan *Task, capacity*2),
 		quit:        make(chan bool),
 		workerQueue: make(chan *worker, capacity),
 	}
 }
 
 func (p *Pool) Submit(task *Task) {
-	select {
-	case p.tasks <- task:
-	case <-p.quit:
-		return
-	}
+	//1.任务来了先进全局的任务channel排队
+	p.tasks <- task
 }
 
 func (p *Pool) Run() {
 	for i := 0; i < p.capacity; i++ {
+		//一个工作协程承载一个任务，工作协程的数量就是池子的大小，也就是工作队列的大小
 		w := &worker{
 			pool: p,
 			task: make(chan *Task),
+			id:   uint32(i) + 1,
 		}
+		//将工作协程放入池中
+		w.pool.workerQueue <- w
 		go w.run()
 	}
 
@@ -57,15 +57,16 @@ func (p *Pool) Run() {
 
 func (p *Pool) Stop() {
 	close(p.quit)
-	p.wg.Wait()
 }
 
 func (p *Pool) dispatch() {
+	//监听早在池子初始化的时候就开始了
+	//2.在这里监听，读取放入，从工作队列中取出一个工作协程，承载任务，而具体承载任务的是worker中的task  channel
 	for {
 		select {
 		case task := <-p.tasks:
-			worker := <-p.workerQueue
-			worker.task <- task
+			wor := <-p.workerQueue
+			wor.task <- task
 		case <-p.quit:
 			return
 		}
@@ -73,20 +74,22 @@ func (p *Pool) dispatch() {
 }
 
 func (w *worker) run() {
+	//监听早在池子初始化的时候就开始了
+	//这里监听的是工作协程的channel是否有任务
 	for {
-		w.pool.workerQueue <- w
-
 		select {
 		case task := <-w.task:
+			fmt.Printf("worker %d start\n", w.id)
 			atomic.AddInt64(&w.pool.active, 1)
-			w.pool.wg.Add(1)
+			//w.pool.wg.Add(1)
 
 			err := task.Handler()
 			task.Result <- err
 
-			w.pool.wg.Done()
+			//w.pool.wg.Done()
 			atomic.AddInt64(&w.pool.active, -1)
-
+			//工作协程用完了,要还回去
+			w.pool.workerQueue <- w
 		case <-w.pool.quit:
 			return
 		}

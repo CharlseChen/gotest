@@ -10,11 +10,11 @@ func TestPool(t *testing.T) {
 	pool := NewPool(10)
 	pool.Run()
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i <= 100; i++ {
 		s := i
 		task := &Task{
 			Handler: func() error {
-				fmt.Printf("Task %d completed\n active workers:%d", s, pool.ActiveWorkers())
+				fmt.Printf("Task %d completed\n active workers:%d\n", s, pool.ActiveWorkers())
 				return nil
 			},
 			Result: make(chan error, 1),
@@ -28,6 +28,6 @@ func TestPool(t *testing.T) {
 		}(task)
 	}
 
-	time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 3)
 	pool.Stop()
 }
