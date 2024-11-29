@@ -8,13 +8,12 @@ import (
 
 func TestPool(t *testing.T) {
 	pool := NewPool(10)
-	pool.Start()
+	pool.Run()
 
 	for i := 0; i < 100; i++ {
 		s := i
 		task := &Task{
 			Handler: func() error {
-				time.Sleep(time.Duration(s) * time.Millisecond)
 				fmt.Printf("Task %d completed\n active workers:%d", s, pool.ActiveWorkers())
 				return nil
 			},
@@ -30,5 +29,5 @@ func TestPool(t *testing.T) {
 	}
 
 	time.Sleep(time.Second * 10)
-	pool.Shutdown()
+	pool.Stop()
 }

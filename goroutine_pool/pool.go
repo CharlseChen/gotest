@@ -1,7 +1,9 @@
 package goroutine_pool
 
 import (
+	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -12,11 +14,11 @@ type Task struct {
 
 type Pool struct {
 	capacity    int
-	active      int
+	active      int64 // 使用 int64 以便与 atomic 包配合使用
 	tasks       chan *Task
 	quit        chan bool
 	workerQueue chan *worker
-	mutex       sync.Mutex
+	wg          sync.WaitGroup
 }
 
 type worker struct {
@@ -25,63 +27,12 @@ type worker struct {
 }
 
 func NewPool(capacity int) *Pool {
-	if capacity < 1 {
-		capacity = 1
-	}
 	return &Pool{
 		capacity:    capacity,
-		tasks:       make(chan *Task, capacity*2),
+		tasks:       make(chan *Task),
 		quit:        make(chan bool),
 		workerQueue: make(chan *worker, capacity),
 	}
-}
-
-func (p *Pool) Start() {
-	for i := 0; i < p.capacity; i++ {
-		w := &worker{pool: p, task: make(chan *Task)}
-		go w.run()
-	}
-	go p.dispatch()
-}
-
-// dispatch 分发任务给 workers
-func (p *Pool) dispatch() {
-	for {
-		select {
-		case task := <-p.tasks:
-			wor := <-p.workerQueue
-			wor.task <- task
-		case <-p.quit:
-			return
-		}
-	}
-}
-
-func (w *worker) run() {
-	for {
-		w.pool.workerQueue <- w
-		select {
-		case task := <-w.pool.tasks:
-			w.pool.increaseActive()
-			task.Result <- task.Handler()
-			w.pool.decreaseActive()
-			w.pool.workerQueue <- w
-		case <-w.pool.quit:
-			return
-		}
-	}
-}
-
-func (p *Pool) increaseActive() {
-	p.mutex.Lock()
-	p.active++
-	p.mutex.Unlock()
-}
-
-func (p *Pool) decreaseActive() {
-	p.mutex.Lock()
-	p.active--
-	p.mutex.Unlock()
 }
 
 func (p *Pool) Submit(task *Task) {
@@ -92,68 +43,89 @@ func (p *Pool) Submit(task *Task) {
 	}
 }
 
-func (p *Pool) Shutdown() {
-	close(p.quit)
-}
-
-func (p *Pool) adjustWorkers() {
-	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop()
-
-	for range ticker.C {
-		p.mutex.Lock()
-		taskCount := len(p.tasks)
-		workerCount := len(p.workerQueue)
-
-		switch {
-		case taskCount > workerCount && p.active < p.capacity:
-			w := &worker{pool: p}
-			p.workerQueue <- w
-			p.active++
-			go w.run()
-		case taskCount < workerCount/2 && p.active > p.capacity/2:
-			select {
-			case w := <-p.workerQueue:
-				p.active--
-				w.pool.quit <- true
-			default:
-			}
+func (p *Pool) Run() {
+	for i := 0; i < p.capacity; i++ {
+		w := &worker{
+			pool: p,
+			task: make(chan *Task),
 		}
-		p.mutex.Unlock()
+		go w.run()
 	}
+
+	go p.dispatch()
 }
 
-type BatchPool struct {
-	*Pool
-	batchSize int
-	batchChan chan []*Task
+func (p *Pool) Stop() {
+	close(p.quit)
+	p.wg.Wait()
 }
 
-func (bp *BatchPool) processBatch() {
-	batch := make([]*Task, 0, bp.batchSize)
-	timer := time.NewTimer(100 * time.Millisecond)
-
+func (p *Pool) dispatch() {
 	for {
 		select {
-		case task := <-bp.tasks:
-			batch = append(batch, task)
-			if len(batch) == bp.batchSize {
-				bp.batchChan <- batch
-				batch = make([]*Task, 0, bp.batchSize)
-			}
-		case <-timer.C:
-			if len(batch) > 0 {
-				if len(batch) > 0 {
-					bp.batchChan <- batch
-					batch = make([]*Task, 0, bp.batchSize)
-				}
-			}
-			timer.Reset(100 * time.Millisecond)
+		case task := <-p.tasks:
+			worker := <-p.workerQueue
+			worker.task <- task
+		case <-p.quit:
+			return
 		}
 	}
 }
+
+func (w *worker) run() {
+	for {
+		w.pool.workerQueue <- w
+
+		select {
+		case task := <-w.task:
+			atomic.AddInt64(&w.pool.active, 1)
+			w.pool.wg.Add(1)
+
+			err := task.Handler()
+			task.Result <- err
+
+			w.pool.wg.Done()
+			atomic.AddInt64(&w.pool.active, -1)
+
+		case <-w.pool.quit:
+			return
+		}
+	}
+}
+
+// ActiveWorkers 返回当前活跃的 worker 数量
 func (p *Pool) ActiveWorkers() int {
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
-	return p.active
+	return int(atomic.LoadInt64(&p.active))
+}
+
+func main() {
+	pool := NewPool(5)
+	pool.Run()
+
+	for i := 0; i < 10; i++ {
+		taskID := i
+		task := &Task{
+			Handler: func() error {
+				fmt.Printf("Task %d is running, active workers: %d\n", taskID, pool.ActiveWorkers())
+				time.Sleep(time.Second)
+				return nil
+			},
+			Result: make(chan error, 1),
+		}
+
+		pool.Submit(task)
+
+		go func() {
+			err := <-task.Result
+			if err != nil {
+				fmt.Printf("Task %d failed: %v\n", taskID, err)
+			} else {
+				fmt.Printf("Task %d completed successfully, active workers: %d\n", taskID, pool.ActiveWorkers())
+			}
+		}()
+	}
+
+	time.Sleep(3 * time.Second)
+	pool.Stop()
+	fmt.Println("Pool stopped, final active workers:", pool.ActiveWorkers())
 }
