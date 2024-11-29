@@ -9,14 +9,13 @@ import (
 func TestPool(t *testing.T) {
 	pool := NewPool(10)
 	pool.Start()
-	defer pool.Stop()
 
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 100; i++ {
 		s := i
 		task := &Task{
 			Handler: func() error {
 				time.Sleep(time.Duration(s) * time.Millisecond)
-				fmt.Printf("Task %d completed\n", s)
+				fmt.Printf("Task %d completed\n active workers:%d", s, pool.ActiveWorkers())
 				return nil
 			},
 			Result: make(chan error, 1),

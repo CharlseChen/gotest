@@ -21,6 +21,7 @@ type Pool struct {
 
 type worker struct {
 	pool *Pool
+	task chan *Task
 }
 
 func NewPool(capacity int) *Pool {
@@ -37,47 +38,62 @@ func NewPool(capacity int) *Pool {
 
 func (p *Pool) Start() {
 	for i := 0; i < p.capacity; i++ {
-		w := &worker{pool: p}
-		p.workerQueue <- w
-		p.active++
+		w := &worker{pool: p, task: make(chan *Task)}
 		go w.run()
+	}
+	go p.dispatch()
+}
+
+// dispatch 分发任务给 workers
+func (p *Pool) dispatch() {
+	for {
+		select {
+		case task := <-p.tasks:
+			wor := <-p.workerQueue
+			wor.task <- task
+		case <-p.quit:
+			return
+		}
 	}
 }
 
 func (w *worker) run() {
 	for {
+		w.pool.workerQueue <- w
 		select {
 		case task := <-w.pool.tasks:
-			if err := task.Handler(); err != nil {
-				task.Result <- err
-			} else {
-				task.Result <- nil
-			}
+			w.pool.increaseActive()
+			task.Result <- task.Handler()
+			w.pool.decreaseActive()
 			w.pool.workerQueue <- w
-
 		case <-w.pool.quit:
 			return
 		}
 	}
 }
 
-func (p *Pool) Submit(task *Task) {
-	p.tasks <- task
+func (p *Pool) increaseActive() {
+	p.mutex.Lock()
+	p.active++
+	p.mutex.Unlock()
 }
 
-func (p *Pool) Stop() {
+func (p *Pool) decreaseActive() {
 	p.mutex.Lock()
-	defer p.mutex.Unlock()
+	p.active--
+	p.mutex.Unlock()
+}
 
-	if p.active > 0 {
-		close(p.quit)
-		p.active = 0
+func (p *Pool) Submit(task *Task) {
+	select {
+	case p.tasks <- task:
+	case <-p.quit:
+		return
 	}
 }
 
 func (p *Pool) Shutdown() {
 	close(p.quit)
-	close(p.tasks)
 }
 
 func (p *Pool) adjustWorkers() {
@@ -135,4 +151,9 @@ func (bp *BatchPool) processBatch() {
 			timer.Reset(100 * time.Millisecond)
 		}
 	}
+}
+func (p *Pool) ActiveWorkers() int {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+	return p.active
 }
