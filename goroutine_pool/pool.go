@@ -75,7 +75,7 @@ func (p *Pool) dispatch() {
 
 func (w *worker) run() {
 	//监听早在池子初始化的时候就开始了
-	//这里监听的是工作协程的channel是否有任务
+	//3.这里监听的是工作协程的channel是否有任务，有任务则读取并且执行完任务要将工作协程归还队列
 	for {
 		select {
 		case task := <-w.task:
