@@ -8,6 +8,104 @@ type TreeNode struct {
 	Val   int
 }
 
+func (t *TreeNode) InsertNode(v int) {
+	if t.Val == v {
+		return
+	}
+
+	if t.Val < v {
+		if t.Right != nil {
+			t.InsertNode(v)
+		} else {
+			t.Right = &TreeNode{
+				Val: v,
+			}
+		}
+	} else {
+		if t.Left != nil {
+			t.InsertNode(v)
+		} else {
+			t.Right = &TreeNode{
+				Val: v,
+			}
+		}
+	}
+}
+
+func (t *TreeNode) Find(v int) *TreeNode {
+	if t == nil {
+		return nil
+	}
+	if t.Val == v {
+		return t
+	}
+	if t.Val < v {
+		return t.Right.Find(v)
+	}
+	return t.Left.Find(v)
+}
+
+func (t *TreeNode) Delete(v int) {
+	/* 删除节点 */
+	cur := t
+	// 若树为空，直接提前返回
+	if cur == nil {
+		return
+	}
+	// 待删除节点之前的节点位置
+	var pre *TreeNode = nil
+	// 循环查找，越过叶节点后跳出
+	for cur != nil {
+		if cur.Val == v {
+			break
+		}
+		pre = cur
+		if cur.Val < v {
+			// 待删除节点在右子树中
+			cur = cur.Right
+		} else {
+			// 待删除节点在左子树中
+			cur = cur.Left
+		}
+	}
+	// 若无待删除节点，则直接返回
+	if cur == nil {
+		return
+	}
+	// 子节点数为 0 或 1
+	if cur.Left == nil || cur.Right == nil {
+		var child *TreeNode = nil
+		// 取出待删除节点的子节点
+		if cur.Left != nil {
+			child = cur.Left
+		} else {
+			child = cur.Right
+		}
+		// 删除节点 cur
+		if cur != t {
+			if pre.Left == cur {
+				pre.Left = child
+			} else {
+				pre.Right = child
+			}
+		} else {
+			// 若删除节点为根节点，则重新指定根节点
+			t = child
+		}
+		// 子节点数为 2
+	} else {
+		// 获取中序遍历中待删除节点 cur 的下一个节点
+		tmp := cur.Right
+		for tmp.Left != nil {
+			tmp = tmp.Left
+		}
+		// 递归删除节点 tmp
+		t.Delete(tmp.Val)
+		// 用 tmp 覆盖 cur
+		cur.Val = tmp.Val
+	}
+}
+
 var tree []*TreeNode
 
 func (t *TreeNode) PreTravel(root *TreeNode) (res []int) {
