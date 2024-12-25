@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"testing"
+	"fmt"
+)
 
 func Test_Tree(t *testing.T) {
 	n := &TreeNode{
@@ -15,5 +18,7 @@ func Test_Tree(t *testing.T) {
 	t.Log(n.Find(99))
 	t.Log(n.Find(1))
 	t.Log(n.Find(4))
-
+	fmt.Printf("%v", n.MidTravelV2(n))
+	n.Delete(76)
+	fmt.Printf("%v", n.MidTravelV2(n))
 }
