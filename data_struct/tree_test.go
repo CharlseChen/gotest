@@ -21,4 +21,5 @@ func Test_Tree(t *testing.T) {
 	fmt.Printf("%v", n.MidTravelV2(n))
 	n.Delete(76)
 	fmt.Printf("%v", n.MidTravelV2(n))
+	fmt.Printf("%v", n.BackTravelV3(n))
 }

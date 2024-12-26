@@ -256,7 +256,7 @@ func (t *TreeNode) PreTravelV3(root *TreeNode) []int {
 		stack.PushBack(node) //中间节点压栈后再压入nil作为中间节点的标志符
 		stack.PushBack(nil)
 	}
-	return nil
+	return res
 }
 
 func (t *TreeNode) MidTravelV3(root *TreeNode) []int {
@@ -288,7 +288,7 @@ func (t *TreeNode) MidTravelV3(root *TreeNode) []int {
 			stack.PushBack(node.Left)
 		}
 	}
-	return nil
+	return res
 }
 
 func (t *TreeNode) BackTravelV3(root *TreeNode) []int {
@@ -322,5 +322,5 @@ func (t *TreeNode) BackTravelV3(root *TreeNode) []int {
 			stack.PushBack(node.Left)
 		}
 	}
-	return nil
+	return res
 }
