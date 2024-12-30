@@ -30,6 +30,7 @@ func (r *Realme) Show() {
 
 type MoDecorator struct {
 	Decorator
+	Color func() string
 }
 
 func (m *MoDecorator) Show() {
@@ -37,11 +38,19 @@ func (m *MoDecorator) Show() {
 	fmt.Println("贴膜")
 }
 
+func (m *MoDecorator) ShowColor() string {
+	return func() string {
+		return m.Color()
+	}()
+}
 func NewMoDecorator(phone Phone) *MoDecorator {
-	return &MoDecorator{Decorator{phone: phone}}
+	return &MoDecorator{Decorator: Decorator{phone: phone}, Color: func() string {
+		return "red"
+	}}
 }
 
 func main() {
 	d := NewMoDecorator(new(Realme))
 	d.Show()
+	d.ShowColor()
 }
