@@ -324,3 +324,34 @@ func (t *TreeNode) BackTravelV3(root *TreeNode) []int {
 	}
 	return res
 }
+
+func (t *TreeNode) SequenceRange(root *TreeNode) [][]int {
+	if root == nil {
+		return nil
+	}
+
+	lst := list.New()
+	lst.PushBack(root)
+	res := ([][]int)(nil)
+	temp := ([]int)(nil)
+	for lst.Len() > 0 {
+		le := lst.Len()
+
+		for i := 0; i < le; i++ {
+			e := lst.Remove(lst.Front()).(*TreeNode)
+			if e.Left != nil {
+				lst.PushBack(e.Left)
+			}
+
+			if e.Right != nil {
+				lst.PushBack(e.Right)
+			}
+			temp = append(temp, e.Val)
+		}
+		if len(temp) > 0 {
+			res = append(res, temp)
+		}
+		temp = ([]int)(nil)
+	}
+	return res
+}
