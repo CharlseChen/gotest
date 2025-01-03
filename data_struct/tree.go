@@ -325,6 +325,7 @@ func (t *TreeNode) BackTravelV3(root *TreeNode) []int {
 	return res
 }
 
+// SequenceRange 层序遍历
 func (t *TreeNode) SequenceRange(root *TreeNode) [][]int {
 	if root == nil {
 		return nil
