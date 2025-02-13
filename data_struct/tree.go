@@ -337,7 +337,6 @@ func (t *TreeNode) SequenceRange(root *TreeNode) [][]int {
 	temp := ([]int)(nil)
 	for lst.Len() > 0 {
 		le := lst.Len()
-
 		for i := 0; i < le; i++ {
 			e := lst.Remove(lst.Front()).(*TreeNode)
 			if e.Left != nil {
