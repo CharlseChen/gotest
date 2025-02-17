@@ -15,6 +15,8 @@ import (
 	"github.com/shopspring/decimal"
 	"sync/atomic"
 	"github.com/panjf2000/ants/v2"
+	_ "net/http/pprof"
+	"net/http"
 )
 
 func NewTest() chan int {
@@ -120,6 +122,8 @@ func main() {
 	if sum != 499500*2 {
 		panic("the final result is wrong!!!")
 	}
+
+	http.ListenAndServe("localhost:6000", nil)
 }
 
 var sum int32
