@@ -470,3 +470,67 @@ func buildTreeFromPreAndMid(preorder []int, inorder []int) *TreeNode {
 	root.Right = buildTree(rightInorder, rightPreorder)
 	return root
 }
+
+func maxTree(arr []int) *TreeNode {
+	if len(arr) == 0 {
+		return nil
+	}
+	var maxV int = arr[0]
+	var maxIndex int
+	for i, v := range arr {
+		if v > maxV {
+			maxV = v
+			maxIndex = i
+			break
+		}
+	}
+	return &TreeNode{
+		Val:   maxV,
+		Left:  maxTree(arr[:maxIndex]),
+		Right: maxTree(arr[maxIndex+1:]),
+	}
+}
+
+func mergeTree(t1 *TreeNode, t2 *TreeNode) *TreeNode {
+	if t1 == nil {
+		return t2
+	}
+	if t2 == nil {
+		return t1
+	}
+	t1.Val += t2.Val
+	t1.Left = mergeTree(t1.Left, t2.Left)
+	t1.Right = mergeTree(t1.Right, t2.Right)
+	return t1
+}
+
+func mergeTreeV2(t1 *TreeNode, t2 *TreeNode) *TreeNode {
+	if t1 == nil {
+		return t2
+	}
+	if t2 == nil {
+		return t1
+	}
+	treeQueue := []*TreeNode{t1, t2}
+	for len(treeQueue) > 0 {
+		e1 := treeQueue[0]
+		treeQueue = treeQueue[1:]
+		e2 := treeQueue[0]
+		treeQueue = treeQueue[1:]
+		e1.Val += e2.Val
+		if e1.Left != nil && e2.Left != nil {
+			treeQueue = append(treeQueue, e1.Left, e2.Left)
+		}
+		if e1.Right != nil && e2.Right != nil {
+			treeQueue = append(treeQueue, e1.Right, e2.Right)
+		}
+		if e1.Left == nil {
+			e1.Left = e2.Left
+		}
+
+		if e1.Right == nil {
+			e1.Right = e2.Right
+		}
+	}
+	return t1
+}
