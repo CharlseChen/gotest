@@ -353,7 +353,6 @@ func (t *TreeNode) SequenceRange(root *TreeNode) [][]int {
 	return res
 }
 
-<<<<<<< HEAD
 func defs(left *TreeNode, right *TreeNode) bool {
 	if left == nil && right == nil {
 		return true
@@ -408,7 +407,8 @@ func leftSum(root *TreeNode) int {
 	rightNum := leftSum(root.Right)
 
 	return leftNum + rightNum
-=======
+}
+
 func buildTree(inorder []int, postorder []int) *TreeNode {
 	if len(postorder) == 0 {
 		return nil
@@ -469,5 +469,4 @@ func buildTreeFromPreAndMid(preorder []int, inorder []int) *TreeNode {
 	root.Left = buildTree(leftInorder, leftPreorder)
 	root.Right = buildTree(rightInorder, rightPreorder)
 	return root
->>>>>>> 8b7df1e9d888bcabcfd813f88f9fd00c91d96a88
 }
