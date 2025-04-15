@@ -353,6 +353,7 @@ func (t *TreeNode) SequenceRange(root *TreeNode) [][]int {
 	return res
 }
 
+<<<<<<< HEAD
 func defs(left *TreeNode, right *TreeNode) bool {
 	if left == nil && right == nil {
 		return true
@@ -407,4 +408,66 @@ func leftSum(root *TreeNode) int {
 	rightNum := leftSum(root.Right)
 
 	return leftNum + rightNum
+=======
+func buildTree(inorder []int, postorder []int) *TreeNode {
+	if len(postorder) == 0 {
+		return nil
+	}
+	//根节点是后序遍历最后一个节点
+	rootVal := postorder[0]
+	root := &TreeNode{Val: rootVal}
+
+	if len(inorder) == 1 {
+		return root
+	}
+
+	var delimterIndex int
+	for delimterIndex = 0; delimterIndex < len(inorder); delimterIndex++ {
+		if inorder[delimterIndex] == rootVal {
+			break
+		}
+	}
+
+	leftInorder := inorder[:delimterIndex]
+	rightInorder := inorder[delimterIndex+1:]
+
+	postorder = postorder[:len(postorder)-1]
+
+	leftPostorder := postorder[:len(leftInorder)]
+	rightPostorder := postorder[len(rightInorder):]
+
+	root.Left = buildTree(leftInorder, leftPostorder)
+	root.Right = buildTree(rightInorder, rightPostorder)
+	return root
+}
+
+func buildTreeFromPreAndMid(preorder []int, inorder []int) *TreeNode {
+	if len(preorder) == 0 {
+		return nil
+	}
+	root := &TreeNode{Val: preorder[0]}
+
+	if len(inorder) == 1 {
+		return root
+	}
+
+	var delimterIndex int
+	for delimterIndex = 0; delimterIndex < len(inorder); delimterIndex++ {
+		if inorder[delimterIndex] == root.Val {
+			break
+		}
+	}
+
+	leftInorder := inorder[:delimterIndex]
+	rightInorder := inorder[delimterIndex+1:]
+
+	preorder = preorder[1:]
+
+	leftPreorder := preorder[:len(leftInorder)]
+	rightPreorder := preorder[len(rightInorder):]
+
+	root.Left = buildTree(leftInorder, leftPreorder)
+	root.Right = buildTree(rightInorder, rightPreorder)
+	return root
+>>>>>>> 8b7df1e9d888bcabcfd813f88f9fd00c91d96a88
 }
