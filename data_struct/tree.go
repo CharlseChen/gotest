@@ -331,27 +331,24 @@ func (t *TreeNode) SequenceRange(root *TreeNode) [][]int {
 		return nil
 	}
 
-	lst := list.New()
-	lst.PushBack(root)
+	lst := []*TreeNode{root}
 	res := ([][]int)(nil)
-	temp := ([]int)(nil)
-	for lst.Len() > 0 {
-		le := lst.Len()
+	for len(lst) > 0 {
+		temp := ([]int)(nil)
+		le := len(lst)
 		for i := 0; i < le; i++ {
-			e := lst.Remove(lst.Front()).(*TreeNode)
+			e := lst[0]
+			lst = lst[1:]
 			if e.Left != nil {
-				lst.PushBack(e.Left)
+				lst = append(lst, e.Left)
 			}
 
 			if e.Right != nil {
-				lst.PushBack(e.Right)
+				lst = append(lst, e.Right)
 			}
 			temp = append(temp, e.Val)
 		}
-		if len(temp) > 0 {
-			res = append(res, temp)
-		}
-		temp = ([]int)(nil)
+		res = append(res, temp)
 	}
 	return res
 }
@@ -394,4 +391,20 @@ func isSymmetricV2(root *TreeNode) bool {
 		queue = append(queue, left.Left, right.Right, left.Right, right.Left)
 	}
 	return true
+}
+
+func leftSum(root *TreeNode) int {
+	if root == nil {
+		return 0
+	}
+	if root.Left == nil {
+		return 0
+	}
+	leftNum := leftSum(root.Left)
+	if root.Left != nil && root.Left.Left == nil && root.Left.Right == nil {
+		return root.Left.Val
+	}
+	rightNum := leftSum(root.Right)
+
+	return leftNum + rightNum
 }
