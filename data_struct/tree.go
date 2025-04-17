@@ -2,6 +2,7 @@ package main
 
 import (
 	"container/list"
+	"math"
 )
 
 type TreeNode struct {
@@ -533,4 +534,120 @@ func mergeTreeV2(t1 *TreeNode, t2 *TreeNode) *TreeNode {
 		}
 	}
 	return t1
+}
+
+func binarySearch(t *TreeNode, v int) *TreeNode {
+	if t == nil {
+		return nil
+	}
+	if t.Val == v {
+		return t
+	}
+	if t.Val > v {
+		return binarySearch(t.Left, v)
+	}
+	return binarySearch(t.Right, v)
+}
+
+func binarySearchIteration(t *TreeNode, v int) *TreeNode {
+	if t == nil || t.Val == v {
+		return t
+	}
+	for t != nil {
+		if t.Val > v {
+			t = t.Left
+		} else if t.Val < v {
+			t = t.Right
+		} else {
+			return t
+		}
+	}
+	return nil
+}
+
+var binarySearchTreeSlice = ([]int)(nil)
+
+func travelBinarySearchTree(root *TreeNode) {
+	if root == nil {
+		return
+	}
+	travelBinarySearchTree(root.Left)
+	binarySearchTreeSlice = append(binarySearchTreeSlice, root.Val)
+	travelBinarySearchTree(root.Right)
+}
+
+// 判断是否是二叉搜索树,转换成数组判断
+func isRealBinarySearchTree(root *TreeNode) bool {
+	if root == nil {
+		return true
+	}
+	travelBinarySearchTree(root)
+
+	for i := 1; i < len(binarySearchTreeSlice); i++ {
+		if binarySearchTreeSlice[i] <= binarySearchTreeSlice[i-1] {
+			return false
+		}
+	}
+	return true
+}
+
+func isRealBinarySearchTreeV2(root *TreeNode) bool {
+	if root == nil {
+		return true
+	}
+	return checkBinarySearchTree(root, math.MinInt, math.MaxInt)
+}
+
+func checkBinarySearchTree(root *TreeNode, min, max int) bool {
+	if root == nil {
+		return true
+	}
+	if root.Val <= min || root.Val >= max {
+		return false
+	}
+	return checkBinarySearchTree(root.Left, min, root.Val) && checkBinarySearchTree(root.Right, root.Val, max)
+}
+
+func isRealBinarySearchTreeV3(root *TreeNode) bool {
+	if root == nil {
+		return true
+	}
+	var stack []*TreeNode
+	var pre *TreeNode
+	for len(stack) > 0 || root != nil {
+		if root != nil {
+			stack = append(stack, root)
+			root = root.Left
+			continue
+		}
+		root = stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		if pre != nil && root.Val <= pre.Val {
+			return false
+		}
+		pre = root
+		root = root.Right
+	}
+	return true
+}
+
+func isRealBinarySearchTreeV4(root *TreeNode) bool {
+	if root == nil {
+		return true
+	}
+	var pre *TreeNode
+	var travel func(root *TreeNode) bool
+	travel = func(root *TreeNode) bool {
+		if root == nil {
+			return true
+		}
+		leftResult := travel(root.Left)
+		if pre != nil && root.Val <= pre.Val {
+			return false
+		}
+		pre = root
+		rightResult := travel(root.Right)
+		return leftResult && rightResult
+	}
+	return travel(root)
 }
