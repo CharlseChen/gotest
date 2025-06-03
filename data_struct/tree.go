@@ -622,6 +622,7 @@ func isRealBinarySearchTreeV3(root *TreeNode) bool {
 		}
 		root = stack[len(stack)-1]
 		stack = stack[:len(stack)-1]
+
 		if pre != nil && root.Val <= pre.Val {
 			return false
 		}
