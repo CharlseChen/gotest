@@ -39,7 +39,7 @@ func TestSingleflight(t *testing.T) {
 // 获取数据
 func load(key string) (string, error) {
 	data, err := loadFromCache(key)
-	if err != nil && err == ErrCacheMiss {
+	if err != nil && errors.Is(err, ErrCacheMiss) {
 		// 利用 singleflight 来归并请求
 		v, err, _ := g.Do(key, func() (interface{}, error) {
 			data, err := loadFromDB(key)
