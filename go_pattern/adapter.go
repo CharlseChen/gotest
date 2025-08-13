@@ -2,6 +2,7 @@ package main
 
 import "fmt"
 
+// 旧的电池
 type V5 interface {
 	Use5V()
 }
@@ -19,6 +20,7 @@ func (p *ApplePhone) Charge() {
 	p.v.Use5V()
 }
 
+//=======================================================================================================================
 type V220 struct{}
 
 func (v *V220) Use220V() {
@@ -34,11 +36,7 @@ func (a *Adapter) Use5V() {
 	a.v220.Use220V()
 }
 
-func NewAdapter(v *V220) *Adapter {
-	return &Adapter{v220: v}
-}
-
 func main() {
-	iphone := NewPhone(NewAdapter(new(V220)))
+	iphone := NewPhone(&Adapter{new(V220)})
 	iphone.Charge()
 }
