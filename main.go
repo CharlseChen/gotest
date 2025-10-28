@@ -17,6 +17,7 @@ import (
 	_ "net/http/pprof"
 	"crypto/sha1"
 	"encoding/hex"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 func NewTest() chan int {
@@ -356,16 +357,34 @@ func Timeout(timeout time.Duration) Option {
 }
 
 func generateSign() {
+	t := time.Now().Add(-3600 * time.Second).Unix()
 	signStr := fmt.Sprintf("app_id=%s&username=%s&password=%s&unix_second=%d",
-		"104", "maibao", "673mY9xNapQQQHfMK6M6", 1756292400)
+		"104", "maibao", "673mY9xNapQQQHfMK6M6", t)
 	fmt.Printf("原始字符串:%s \n", signStr)
 
 	h := sha1.Sum([]byte(signStr))
 	sign := hex.EncodeToString(h[:])
 
-	fmt.Println("签名:", sign)
+	fmt.Println("时间戳:", t, "签名:", sign)
 }
 
+type JwtClaims struct {
+	Name     uint64 `json:"name"`
+	UserIcon string `json:"userIcon"`
+	Uid      int32  `json:"uid"`
+	jwt.RegisteredClaims
+}
+
+func testToken() {
+	token, _ := jwt.ParseWithClaims("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJtYWliYW8iLCJleHAiOjE3NjMwMjYwMDQsImlhdCI6MTc2MDQzNDAwNCwiaXNzIjoicGFydHlpbmcudHciLCJuYW1lIjoi5pa5aGhoIiwic3ViIjo4MDAzNzMxODksInVpZCI6ODAwMzczMTg5LCJ1c2VySWNvbiI6Imh0dHBzOi8veHMtaW1hZ2UucGFydHlpbmcudHcvc3RhdGljL2RlZmF1bHRfaWNvbnMvYXZhdGFyX21hbGUwMy5qcGcifQ.LroEBYpw0QrFdmGTk05lr5VEBHN4JSt9XzH7cNxSxM8", &JwtClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte("a-string-secret-at-least-256-bits-long"), nil
+	})
+	if claims, ok := token.Claims.(*JwtClaims); ok {
+		fmt.Printf("%#v", claims.Uid)
+	}
+
+}
 func main() {
 	generateSign()
+	testToken()
 }

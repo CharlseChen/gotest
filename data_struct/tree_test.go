@@ -24,8 +24,8 @@ func Test_Tree(t *testing.T) {
 	//t.Log(n.Find(4))
 	//fmt.Printf("%v", n.MidTravelV2(n))
 	//n.Delete(76)
-	fmt.Printf("%v", n.PreTravelV2(n))
-	fmt.Printf("%v", n.MidTravelV2(n))
+	fmt.Printf("%v", n.PreTravelV3(n))
+	//fmt.Printf("%v", n.MidTravelV2(n))
 	//fmt.Printf("%v", n.BackTravelV3(n))
-	fmt.Printf("%v\n", n.SequenceRange(n))
+	//fmt.Printf("%v\n", n.SequenceRange(n))
 }
