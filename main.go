@@ -18,6 +18,11 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"github.com/golang-jwt/jwt/v4"
+	"crypto/sha256"
+	"crypto/hmac"
+	"github.com/google/uuid"
+	"github.com/gogf/gf/util/grand"
+	"strings"
 )
 
 func NewTest() chan int {
@@ -384,7 +389,43 @@ func testToken() {
 	}
 
 }
+func computeHMACHex(message, secret string) string {
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write([]byte(message))
+	return hex.EncodeToString(mac.Sum(nil))
+}
+
+func sdkSign() {
+	println("sdkSign")
+	t := time.Now().Unix()
+	nonce := uuid.New()
+	message := fmt.Sprintf("%d|%d|%s|%d", 104, t, nonce, 123456)
+	sign := computeHMACHex(message, "7ZDSxRTMbZ7ejbXSa")
+	fmt.Println("t:", t, "nonce:", nonce, "sign:", sign)
+}
+
+func randomStr() {
+	n := 17
+	base := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()_+"
+	fmt.Println(len(base))
+	var str strings.Builder
+	for i := 0; i < n; i++ {
+		index := grand.N(0, 74)
+		str.WriteString(fmt.Sprintf("%c", base[index]))
+	}
+	fmt.Println(str.String())
+}
+
 func main() {
 	generateSign()
 	testToken()
+	sdkSign()
+	randomStr()
+	n, _ := strconv.Atoi("90001")
+	println(int64(n))
+	fmt.Printf("%s%", "echo")
+}
+
+type Number interface {
+	int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | uintptr | float32 | float64
 }
