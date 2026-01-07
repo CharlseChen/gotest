@@ -399,18 +399,18 @@ func sdkSign() {
 	println("sdkSign")
 	t := time.Now().Unix()
 	nonce := uuid.New()
-	message := fmt.Sprintf("%d|%d|%s|%d", 104, t, nonce, 123456)
-	sign := computeHMACHex(message, "7ZDSxRTMbZ7ejbXSa")
+	message := fmt.Sprintf("%d|%d|%s|%d", 66, t, nonce, 200252403)
+	sign := computeHMACHex(message, "TIbqNyZBhlcEThRPo")
 	fmt.Println("t:", t, "nonce:", nonce, "sign:", sign)
 }
 
 func randomStr() {
 	n := 17
-	base := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()_+"
+	base := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	fmt.Println(len(base))
 	var str strings.Builder
 	for i := 0; i < n; i++ {
-		index := grand.N(0, 74)
+		index := grand.N(0, 62)
 		str.WriteString(fmt.Sprintf("%c", base[index]))
 	}
 	fmt.Println(str.String())
@@ -428,4 +428,9 @@ func main() {
 
 type Number interface {
 	int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | uintptr | float32 | float64
+}
+
+// 回声函数
+func Echo[T any](v T) T {
+	return v
 }
